@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Privacy Policy — Doppel</title>
+  <meta name="description" content="Privacy policy for Doppel, an AI-powered 'find similar' Chrome extension for Shopify storefronts." />
+  <style>
+    :root {
+      --ink: #0e0e0c;
+      --ink-soft: #5c5a52;
+      --paper: #faf9f5;
+      --rule: #e5e0d4;
+      --accent: #3461ff;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 48px 20px 96px;
+    }
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 32px;
+      line-height: 1.2;
+      margin: 0 0 8px;
+      letter-spacing: -0.01em;
+    }
+    h2 {
+      font-size: 20px;
+      line-height: 1.3;
+      margin: 36px 0 12px;
+      padding-top: 18px;
+      border-top: 1px solid var(--rule);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; }
+    p, ul, ol { margin: 0 0 14px; }
+    ul, ol { padding-left: 22px; }
+    li { margin-bottom: 6px; }
+    .meta {
+      color: var(--ink-soft);
+      font-size: 13px;
+      margin-bottom: 28px;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    strong { font-weight: 600; }
+    code {
+      background: #fff;
+      border: 1px solid var(--rule);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: "SF Mono", Consolas, monospace;
+    }
+    footer {
+      margin-top: 56px;
+      padding-top: 18px;
+      border-top: 1px solid var(--rule);
+      color: var(--ink-soft);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Doppel — Privacy Policy</h1>
+    <p class="meta"><strong>Last updated:</strong> 2026-05-23</p>
+
+    <p>Doppel is a Chrome extension that finds similar products on Shopify storefronts by querying their public product catalogs and ranking results with AI. This document describes what Doppel collects, where it goes, and how to opt out.</p>
+
+    <h2>What lives on your device</h2>
+    <ul>
+      <li><strong>Cached product catalogs</strong> of stores you've enabled — the same data Shopify already exposes publicly via <code>/products.json</code>. Stored in your browser's local storage for up to 24 hours so similarity search is instant.</li>
+      <li><strong>Your watchlist</strong> — a list of products you've explicitly saved, with their last-seen prices.</li>
+      <li><strong>Your enabled-sites list</strong> — the canonical hostnames of stores you've granted Doppel access to.</li>
+      <li><strong>Your list of community-store submissions</strong> — if you've submitted any stores via the Discover screen's "Add a store" input, the hostnames you submitted are kept locally so the UI can show your contributions.</li>
+      <li><strong>A randomly-generated install token</strong> — used only as an opaque identifier for per-install rate limiting on our AI proxy. Not tied to your name, email, or any other identifier.</li>
+    </ul>
+    <p>This local data lives in your browser and is deleted when you uninstall the extension or clear your browser storage. None of it is shared with us automatically.</p>
+
+    <h2>What we send to our Cloudflare Worker</h2>
+    <p>Doppel's AI rerank and catalog fetching run through a Cloudflare Worker we operate at <code>doppel-rerank.doppel-dev.workers.dev</code>. The Worker holds API keys for Anthropic server-side so they never touch your browser.</p>
+    <p>When you trigger AI rerank (which happens on every product search), the extension sends to the Worker:</p>
+    <ul>
+      <li>The title, description, and tags of the product you're viewing</li>
+      <li>The titles, descriptions, and tags of candidate matches from your enabled stores</li>
+      <li>Your random install token (in a request header)</li>
+    </ul>
+    <p>The Worker forwards the title/description/tags to <strong>Anthropic</strong> (the makers of Claude) for the actual ranking. Anthropic processes the request and returns the ranking. The Worker does not pass your install token or IP address on to Anthropic.</p>
+    <p>When you submit a store via Discover's "Add a store", the extension sends:</p>
+    <ul>
+      <li>The hostname of the store you're submitting</li>
+      <li>A salted hash of your install token (so submissions can be counted as distinct without us being able to link them back to a specific install)</li>
+      <li>A submission timestamp</li>
+    </ul>
+    <p>These three fields are stored in our database to enable the threshold-promotion logic (a store needs at least three distinct submissions before it appears publicly in Discover for other users).</p>
+
+    <h2>What Cloudflare sees</h2>
+    <p>Cloudflare sits in front of the Worker as our network provider. Any HTTP request to any service on the internet exposes the requester's IP address to the network operator — that's unavoidable. The Worker reads the IP address only to compute a SHA-256 hash, which it uses solely to enforce a per-IP daily rate limit on AI rerank. The hash counter resets daily at UTC midnight. We do not store the raw IP address. Cloudflare's own infrastructure logging is governed by <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare's privacy policy</a>.</p>
+
+    <h2>What we do NOT do</h2>
+    <ul>
+      <li>We do not track which sites you visit.</li>
+      <li>We do not store browsing history.</li>
+      <li>We do not sell, share, or rent any user data.</li>
+      <li>We do not embed analytics or telemetry SDKs.</li>
+      <li>We do not use cookies.</li>
+      <li>We do not show ads.</li>
+      <li>We do not store raw IP addresses anywhere.</li>
+    </ul>
+
+    <h2>Retention</h2>
+    <ul>
+      <li><strong>Local data on your device</strong> lives until you uninstall or clear browser storage.</li>
+      <li><strong>AI rerank rate-limit counters</strong> (per-install-token and per-IP-hash) reset every day at UTC midnight.</li>
+      <li><strong>Community-store submissions</strong> persist in our database indefinitely so threshold promotion works across days. Only the host, salted submitter hash, and timestamp are stored.</li>
+      <li><strong>Cached store catalog embeddings</strong> on Cloudflare R2 are refreshed by a daily cron job. Old data is replaced.</li>
+    </ul>
+
+    <h2>Your controls</h2>
+    <ul>
+      <li><strong>Revoke a store:</strong> Settings → Enabled sites → Revoke. Doppel will no longer access that store, and Chrome will require re-consent if you re-enable it.</li>
+      <li><strong>Refresh a catalog:</strong> Settings → Refresh catalog. Forces an immediate re-fetch.</li>
+      <li><strong>Uninstall:</strong> removes all local data and revokes all granted host permissions.</li>
+      <li><strong>Clear all extension storage:</strong> Chrome → Settings → Privacy → Site data → find Doppel and clear.</li>
+    </ul>
+    <p>You can see your current AI usage at any time in the extension's Settings panel.</p>
+
+    <h2>Children's privacy</h2>
+    <p>Doppel is not directed at children under 13. We do not knowingly collect data from children.</p>
+
+    <h2>Changes to this policy</h2>
+    <p>If we change what's collected, where it goes, or how it's retained, we'll update this page and the "Last updated" date at the top. The current version is always available at this URL.</p>
+
+    <h2>Contact</h2>
+    <p>For privacy questions or requests, email: <a href="mailto:jesse_easton@hotmail.com">jesse_easton@hotmail.com</a></p>
+
+    <footer>
+      &copy; 2026 Jesse Easton-Harris. Doppel is a Chrome extension; this page is not user-facing infrastructure of the extension itself.
+    </footer>
+  </main>
+</body>
+</html>
